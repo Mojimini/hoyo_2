@@ -1,28 +1,42 @@
 import { NavLink, Outlet } from "react-router-dom";
 
 const navItems = [
-  ["/", "Overview"],
-  ["/characters", "Characters"],
-  ["/teams", "Teams"],
-  ["/planner", "Build Planner"],
-  ["/account", "Account"],
-  ["/settings", "Settings"],
+  ["/", "Overview", "OV"],
+  ["/characters", "Characters", "CH"],
+  ["/teams", "Teams", "TM"],
+  ["/planner", "Build Planner", "BP"],
+  ["/account", "Account", "AC"],
+  ["/settings", "Settings", "ST"],
 ] as const;
 
 export function AppShell() {
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand">HOYO BUILD</div>
+      <aside className="sidebar" aria-label="Application sidebar">
+        <div className="brand-block">
+          <span className="brand-mark" aria-hidden="true">HB</span>
+          <div>
+            <div className="brand">HOYO BUILD</div>
+            <div className="brand-subtitle">Build intelligence</div>
+          </div>
+        </div>
+
         <nav className="nav" aria-label="Primary navigation">
-          {navItems.map(([to, label]) => (
+          {navItems.map(([to, label, shortLabel]) => (
             <NavLink key={to} to={to} end={to === "/"}>
-              {label}
+              <span className="nav-icon" aria-hidden="true">{shortLabel}</span>
+              <span className="nav-label">{label}</span>
             </NavLink>
           ))}
         </nav>
+
+        <div className="sidebar-footer" aria-hidden="true">
+          <span className="status-dot" />
+          UI preview mode
+        </div>
       </aside>
-      <main className="main">
+
+      <main className="main" id="main-content">
         <Outlet />
       </main>
     </div>
