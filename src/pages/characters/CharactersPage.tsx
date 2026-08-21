@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { characters } from "../../data/mock";
+import { usePublicProfile } from "../../profile/react/PublicProfileContext";
+import type { PublicProfileCharacter } from "../../profile/contracts";
 import type { BuildQueueStage, BuildStatus, CharacterSummary } from "../../types/models";
 import "./characters.css";
 
@@ -8,6 +10,7 @@ type RoleFilter = "all" | CharacterSummary["role"];
 type StatusFilter = "all" | BuildStatus;
 type ElementFilter = "all" | string;
 type SortKey = "priority" | "score" | "name" | "level";
+type PublicSortKey = "name" | "level";
 
 const roleOptions: Array<{ value: RoleFilter; label: string }> = [
   { value: "all", label: "All roles" },
@@ -45,7 +48,7 @@ const queueLabels: Record<BuildQueueStage, string> = {
   done: "Queue complete",
 };
 
-function CharacterCard({ character }: { character: CharacterSummary }) {
+function MockCharacterCard({ character }: { character: CharacterSummary }) {
   return (
     <Link
       className="character-card"
@@ -93,7 +96,168 @@ function CharacterCard({ character }: { character: CharacterSummary }) {
   );
 }
 
-export function CharactersPage() {
+function PublicCharacterCard({ character }: { character: PublicProfileCharacter }) {
+  return (
+    <Link
+      className="character-card"
+      to={`/characters/${character.id}`}
+      aria-label={`Open ${character.name} public profile details`}
+    >
+      <div className="character-card__topline">
+        <div>
+          <span className="character-card__element">{character.element ?? "Element unavailable"}</span>
+          <h2>{character.name}</h2>
+        </div>
+        {character.iconUrl ? (
+          <img
+            src={character.iconUrl}
+            alt=""
+            width="52"
+            height="52"
+            style={{ objectFit: "contain" }}
+          />
+        ) : null}
+      </div>
+
+      <div className="character-card__meta" aria-label="Public character overview">
+        <span>Lv. {character.level}</span>
+        {character.path ? <span>{character.path}</span> : null}
+        {character.eidolon !== undefined ? <span>E{character.eidolon}</span> : null}
+      </div>
+
+      <div className="character-card__footer">
+        <span className="character-card__action">Public showcase data · open equipment and stats</span>
+        <span aria-hidden="true">→</span>
+      </div>
+    </Link>
+  );
+}
+
+function PublicCharactersRoster({
+  roster,
+  uid,
+  isStale,
+}: {
+  roster: readonly PublicProfileCharacter[];
+  uid: string;
+  isStale: boolean;
+}) {
+  const [search, setSearch] = useState("");
+  const [element, setElement] = useState("all");
+  const [path, setPath] = useState("all");
+  const [sortBy, setSortBy] = useState<PublicSortKey>("level");
+
+  const elements = useMemo(
+    () => Array.from(new Set(roster.map((character) => character.element).filter((value): value is string => Boolean(value)))).sort(),
+    [roster],
+  );
+  const paths = useMemo(
+    () => Array.from(new Set(roster.map((character) => character.path).filter((value): value is string => Boolean(value)))).sort(),
+    [roster],
+  );
+
+  const visibleCharacters = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    const filtered = roster.filter((character) => {
+      const matchesSearch = query.length === 0 || character.name.toLocaleLowerCase().includes(query);
+      const matchesElement = element === "all" || character.element === element;
+      const matchesPath = path === "all" || character.path === path;
+      return matchesSearch && matchesElement && matchesPath;
+    });
+
+    return [...filtered].sort((a, b) =>
+      sortBy === "name"
+        ? a.name.localeCompare(b.name)
+        : b.level - a.level || a.name.localeCompare(b.name),
+    );
+  }, [element, path, roster, search, sortBy]);
+
+  const hasActiveFilters = search.trim() !== "" || element !== "all" || path !== "all";
+  const resetFilters = () => {
+    setSearch("");
+    setElement("all");
+    setPath("all");
+  };
+
+  return (
+    <section className="page characters-page">
+      <header className="page-header characters-page__header">
+        <div>
+          <div className="eyebrow">Public showcase · UID {uid}</div>
+          <h1>Characters</h1>
+          <p className="muted">Showing only characters supplied by the active public UID snapshot. No build score or priority is inferred.</p>
+        </div>
+        <div className="characters-page__count" aria-live="polite">
+          <strong>{visibleCharacters.length}</strong>
+          <span>of {roster.length} visible</span>
+        </div>
+      </header>
+
+      {isStale ? (
+        <div className="roster-empty" role="status">
+          <h2>Snapshot is stale</h2>
+          <p className="muted">These are the last successful values for this UID. Refresh the provider from the Account page before treating them as current.</p>
+          <Link to="/account">Open Account →</Link>
+        </div>
+      ) : null}
+
+      <div className="roster-controls" aria-label="Public character roster controls">
+        <label className="roster-controls__search">
+          <span>Search</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search showcased characters"
+          />
+        </label>
+
+        <label>
+          <span>Element</span>
+          <select value={element} onChange={(event) => setElement(event.target.value)}>
+            <option value="all">All elements</option>
+            {elements.map((item) => <option value={item} key={item}>{item}</option>)}
+          </select>
+        </label>
+
+        <label>
+          <span>Path</span>
+          <select value={path} onChange={(event) => setPath(event.target.value)}>
+            <option value="all">All paths</option>
+            {paths.map((item) => <option value={item} key={item}>{item}</option>)}
+          </select>
+        </label>
+
+        <label>
+          <span>Sort by</span>
+          <select value={sortBy} onChange={(event) => setSortBy(event.target.value as PublicSortKey)}>
+            <option value="level">Level</option>
+            <option value="name">Name</option>
+          </select>
+        </label>
+
+        <button className="roster-controls__reset" type="button" onClick={resetFilters} disabled={!hasActiveFilters}>
+          Clear filters
+        </button>
+      </div>
+
+      {visibleCharacters.length > 0 ? (
+        <div className="character-grid">
+          {visibleCharacters.map((character) => <PublicCharacterCard character={character} key={character.id} />)}
+        </div>
+      ) : (
+        <div className="roster-empty" role="status">
+          <div className="roster-empty__icon" aria-hidden="true">✦</div>
+          <h2>No public characters match</h2>
+          <p className="muted">Try a different name or clear one of the showcase filters.</p>
+          <button type="button" onClick={resetFilters}>Reset filters</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function MockCharactersRoster() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<RoleFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -113,7 +277,6 @@ export function CharactersPage() {
       const matchesRole = role === "all" || character.role === role;
       const matchesStatus = status === "all" || character.status === status;
       const matchesElement = element === "all" || character.element === element;
-
       return matchesSearch && matchesRole && matchesStatus && matchesElement;
     });
 
@@ -145,9 +308,9 @@ export function CharactersPage() {
     <section className="page characters-page">
       <header className="page-header characters-page__header">
         <div>
-          <div className="eyebrow">Roster</div>
+          <div className="eyebrow">Planning preview · mock roster</div>
           <h1>Characters</h1>
-          <p className="muted">Find who is ready, who needs work, and who should be built next.</p>
+          <p className="muted">Load a public UID from Account to replace this preview with the real public showcase roster.</p>
         </div>
         <div className="characters-page__count" aria-live="polite">
           <strong>{visibleCharacters.length}</strong>
@@ -158,29 +321,20 @@ export function CharactersPage() {
       <div className="roster-controls" aria-label="Character roster controls">
         <label className="roster-controls__search">
           <span>Search</span>
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search characters"
-          />
+          <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search characters" />
         </label>
 
         <label>
           <span>Role</span>
           <select value={role} onChange={(event) => setRole(event.target.value as RoleFilter)}>
-            {roleOptions.map((option) => (
-              <option value={option.value} key={option.value}>{option.label}</option>
-            ))}
+            {roleOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
           </select>
         </label>
 
         <label>
           <span>Build status</span>
           <select value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
-            {statusOptions.map((option) => (
-              <option value={option.value} key={option.value}>{option.label}</option>
-            ))}
+            {statusOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
           </select>
         </label>
 
@@ -188,36 +342,25 @@ export function CharactersPage() {
           <span>Element</span>
           <select value={element} onChange={(event) => setElement(event.target.value)}>
             <option value="all">All elements</option>
-            {elements.map((item) => (
-              <option value={item} key={item}>{item}</option>
-            ))}
+            {elements.map((item) => <option value={item} key={item}>{item}</option>)}
           </select>
         </label>
 
         <label>
           <span>Sort by</span>
           <select value={sortBy} onChange={(event) => setSortBy(event.target.value as SortKey)}>
-            {sortOptions.map((option) => (
-              <option value={option.value} key={option.value}>{option.label}</option>
-            ))}
+            {sortOptions.map((option) => <option value={option.value} key={option.value}>{option.label}</option>)}
           </select>
         </label>
 
-        <button
-          className="roster-controls__reset"
-          type="button"
-          onClick={resetFilters}
-          disabled={!hasActiveFilters}
-        >
+        <button className="roster-controls__reset" type="button" onClick={resetFilters} disabled={!hasActiveFilters}>
           Clear filters
         </button>
       </div>
 
       {visibleCharacters.length > 0 ? (
         <div className="character-grid">
-          {visibleCharacters.map((character) => (
-            <CharacterCard character={character} key={character.id} />
-          ))}
+          {visibleCharacters.map((character) => <MockCharacterCard character={character} key={character.id} />)}
         </div>
       ) : (
         <div className="roster-empty" role="status">
@@ -229,4 +372,14 @@ export function CharactersPage() {
       )}
     </section>
   );
+}
+
+export function CharactersPage() {
+  const { snapshot, isStale } = usePublicProfile();
+
+  if (snapshot) {
+    return <PublicCharactersRoster roster={snapshot.characters} uid={snapshot.source.uid} isStale={isStale} />;
+  }
+
+  return <MockCharactersRoster />;
 }

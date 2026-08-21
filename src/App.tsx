@@ -7,20 +7,23 @@ import { PlannerPage } from "./pages/planner/PlannerPage";
 import { TeamsPage } from "./pages/teams/TeamsPage";
 import { AccountPage } from "./pages/account/AccountPage";
 import { SettingsPage } from "./pages/settings/SettingsPage";
+import { PublicProfileProvider } from "./profile/react/PublicProfileContext";
 
 export function App() {
   return (
-    <Routes>
-      <Route element={<AppShell />}>
-        <Route index element={<DashboardPage />} />
-        <Route path="characters" element={<CharactersPage />} />
-        <Route path="characters/:id" element={<CharacterDetailPage />} />
-        <Route path="planner" element={<PlannerPage />} />
-        <Route path="teams" element={<TeamsPage />} />
-        <Route path="account" element={<AccountPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate replace to="/" />} />
-      </Route>
-    </Routes>
+    <PublicProfileProvider>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="characters" element={<CharactersPage />} />
+          <Route path="characters/:id" element={<CharacterDetailPage />} />
+          <Route path="planner" element={<PlannerPage />} />
+          <Route path="teams" element={<TeamsPage />} />
+          <Route path="account" element={<AccountPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate replace to="/" />} />
+        </Route>
+      </Routes>
+    </PublicProfileProvider>
   );
 }
