@@ -1,0 +1,246 @@
+.account-live {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(145deg, rgba(31, 40, 54, 0.72), rgba(17, 23, 33, 0.82));
+}
+
+.account-live__heading,
+.account-live__roster-heading,
+.account-live__player,
+.account-live__player-main,
+.account-live__actions,
+.account-live__character {
+  display: flex;
+}
+
+.account-live__heading,
+.account-live__roster-heading,
+.account-live__player {
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.account-live__heading,
+.account-live__roster-heading {
+  align-items: flex-end;
+}
+
+.account-live__heading h2,
+.account-live__roster-heading h3,
+.account-live__player h3,
+.account-preview-label h2 {
+  margin: 4px 0 0;
+}
+
+.account-live__uid,
+.account-live__freshness,
+.account-live__partial {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.74rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.account-live > .profile-source {
+  width: 100%;
+  max-width: none;
+  box-shadow: none;
+}
+
+.account-live__snapshot {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.account-live__player {
+  align-items: center;
+}
+
+.account-live__player-main {
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.account-live__avatar {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.account-live__avatar--placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.account-live__player-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.account-live__actions {
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.account-live__actions button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.account-live__actions button:hover:not(:disabled),
+.account-live__actions button:focus-visible {
+  border-color: var(--accent);
+}
+
+.account-live__actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.account-live__freshness {
+  color: var(--success);
+  border-color: rgba(123, 201, 159, 0.24);
+  background: var(--success-soft);
+}
+
+.account-live__freshness.is-stale,
+.account-live__partial {
+  color: var(--warning);
+  border-color: rgba(228, 185, 104, 0.24);
+  background: var(--warning-soft);
+}
+
+.account-live__warning {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(228, 185, 104, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--warning);
+  background: var(--warning-soft);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.account-live__roster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.account-live__character {
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: inherit;
+  background: rgba(8, 12, 18, 0.3);
+  text-decoration: none;
+}
+
+.account-live__character:hover,
+.account-live__character:focus-visible {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.account-live__character-image {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  background: var(--surface-2);
+  font-weight: 800;
+}
+
+.account-live__character-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.account-live__character-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.account-live__character-copy strong {
+  overflow-wrap: anywhere;
+}
+
+.account-live__character-copy span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.account-live__open {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+.account-preview-label {
+  display: grid;
+  gap: 4px;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.account-preview-label p {
+  max-width: 860px;
+  margin: 0;
+}
+
+@media (max-width: 760px) {
+  .account-live__heading,
+  .account-live__roster-heading,
+  .account-live__player {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-live__actions {
+    justify-content: flex-start;
+  }
+
+  .account-live__roster {
+    grid-template-columns: 1fr;
+  }
+}
