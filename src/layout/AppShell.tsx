@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
+import "./AppShell.css";
 
 const navItems = [
   ["/", "Overview", "OV"],
