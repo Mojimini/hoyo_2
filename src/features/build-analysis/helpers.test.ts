@@ -35,7 +35,19 @@ describe("build analysis presentation helpers", () => {
     expect(relicMethodLabel("srs-m")).toBe("SRS-M");
     expect(availableAnalysisFixture.relicScores.state).toBe("available");
     if (availableAnalysisFixture.relicScores.state === "available") {
-      expect(availableAnalysisFixture.relicScores.value[0]?.score.normalizedScore).toBe(82);
+      const score = availableAnalysisFixture.relicScores.value[0]?.score;
+      expect(score?.normalizedScore).toBe(0.82);
+      expect(score?.mainStatScore).toBe(1);
+      expect(score?.substatScore).toBe(0.64);
+      expect(score?.normalizedScore).toBeGreaterThanOrEqual(0);
+      expect(score?.normalizedScore).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("keeps normalized build-quality fixture scores on the canonical 0..1 scale", () => {
+    expect(availableAnalysisFixture.buildQuality.state).toBe("available");
+    if (availableAnalysisFixture.buildQuality.state === "available") {
+      expect(availableAnalysisFixture.buildQuality.value.normalizedScore).toBe(0.78);
     }
   });
 
