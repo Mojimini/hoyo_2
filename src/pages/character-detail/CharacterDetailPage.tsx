@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { characters } from "../../data/mock";
+import { ProfileCharacterDetail } from "../../features/profile-detail";
+import { usePublicProfile } from "../../profile/react/PublicProfileContext";
 import type { BuildQueueStage, BuildStatus, CharacterStat } from "../../types/models";
 import "./CharacterDetailPage.css";
 
@@ -79,6 +81,35 @@ function StatTable({ stats }: { stats: CharacterStat[] }) {
 export function CharacterDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState<DetailTab>("Overview");
+  const { snapshot, isStale, state } = usePublicProfile();
+  const publicCharacter = snapshot?.characters.find((item) => item.id === id);
+
+  if (publicCharacter && snapshot) {
+    const source = isStale
+      ? { ...snapshot.source, freshness: "stale" as const }
+      : snapshot.source;
+
+    return (
+      <section className="page character-detail-page">
+        <Link className="detail-back-link detail-top-back" to="/account">← Public showcase</Link>
+
+        {isStale ? (
+          <article className="detail-card" role="status">
+            <span className="detail-kicker">Stale public snapshot</span>
+            <h2>Showing the last successful data for this UID</h2>
+            <p className="muted">
+              {state.status === "error"
+                ? `The latest refresh failed: ${state.error.message}`
+                : "A provider refresh is currently in progress. The values below remain from the previous successful snapshot until it completes."}
+            </p>
+          </article>
+        ) : null}
+
+        <ProfileCharacterDetail character={publicCharacter} source={source} />
+      </section>
+    );
+  }
+
   const character = characters.find((item) => item.id === id);
 
   if (!character) {
@@ -87,7 +118,7 @@ export function CharacterDetailPage() {
         <div className="detail-not-found-card">
           <span className="detail-kicker">Character analysis</span>
           <h1>Character not found</h1>
-          <p>The requested character is not available in the current mock account data.</p>
+          <p>The requested character is not available in the current public profile session or mock planning dataset.</p>
           <Link className="detail-back-link" to="/characters">← Back to characters</Link>
         </div>
       </section>
@@ -105,7 +136,7 @@ export function CharacterDetailPage() {
         <div className="detail-identity">
           <div className="detail-avatar" aria-hidden="true">{character.name.slice(0, 1)}</div>
           <div>
-            <span className="detail-kicker">Character analysis</span>
+            <span className="detail-kicker">Character analysis · mock planning data</span>
             <h1>{character.name}</h1>
             <p>{character.element} · {character.role} · Lv.{character.level}</p>
           </div>
@@ -157,7 +188,7 @@ export function CharacterDetailPage() {
             <span className="detail-kicker">Highest-value queued action</span>
             <h2>Next Best Upgrade</h2>
             <p className="detail-upgrade-action">{character.nextAction}</p>
-            <span className="detail-context-note">Shown directly from the existing character recommendation data.</span>
+            <span className="detail-context-note">Shown directly from the existing mock character recommendation data.</span>
           </article>
 
           <article className="detail-card detail-stats-card">
@@ -176,7 +207,7 @@ export function CharacterDetailPage() {
               <span><small>Readiness</small>{statusLabels[character.status]}</span>
               <span><small>Queue</small>{queueLabels[character.queueStage]}</span>
             </div>
-            <span className="detail-context-note">Guidance uses only the existing readiness and build-queue states.</span>
+            <span className="detail-context-note">Guidance uses only the existing mock readiness and build-queue states.</span>
           </article>
         </div>
       )}
@@ -194,7 +225,7 @@ export function CharacterDetailPage() {
         <article className="detail-card detail-tab-panel detail-placeholder">
           <span className="detail-kicker">{activeTab}</span>
           <h2>{activeTab} data is not available yet</h2>
-          <p>This section is reserved for a future data source. No {activeTab.toLowerCase()} values are included in the current character contract, so nothing is inferred here.</p>
+          <p>This section is reserved for a future data source. No {activeTab.toLowerCase()} values are included in the current mock character contract, so nothing is inferred here.</p>
         </article>
       )}
     </section>
