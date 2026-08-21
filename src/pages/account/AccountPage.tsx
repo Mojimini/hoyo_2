@@ -106,7 +106,7 @@ export function AccountPage() {
           <div className="status-distribution">
             {Object.entries(statusDistribution).map(([status, count]) => (
               <div className="status-distribution-row" key={status}>
-                <span className={`status-dot status-dot-${status}`} aria-hidden="true" />
+                <span className={`account-status-dot account-status-dot-${status}`} aria-hidden="true" />
                 <span>{statusLabels[status as keyof typeof statusLabels]}</span>
                 <strong>{count}</strong>
               </div>
