@@ -84,9 +84,9 @@ export const availableAnalysisFixture: CharacterAnalysisResult = {
         slot: "head",
         score: {
           method: "srs-n",
-          normalizedScore: 82,
-          mainStatScore: 100,
-          substatScore: 64,
+          normalizedScore: 0.82,
+          mainStatScore: 1,
+          substatScore: 0.64,
           effectiveSubstats: 5.5,
           source: demoCommunitySource,
           note: "Synthetic score supplied directly by the fixture.",
@@ -97,7 +97,7 @@ export const availableAnalysisFixture: CharacterAnalysisResult = {
   },
   buildQuality: {
     state: "available",
-    value: { label: "Fixture quality label", normalizedScore: 78 },
+    value: { label: "Fixture quality label", normalizedScore: 0.78 },
     sources: [demoPublicProfileSource, demoCommunitySource],
   },
   recommendation: {
