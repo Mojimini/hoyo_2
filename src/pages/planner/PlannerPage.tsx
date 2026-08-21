@@ -104,7 +104,10 @@ function CharacterQueueItem({
 
 export function PlannerPage() {
   const [queueById, setQueueById] = useState<Record<string, BuildQueueStage>>(() =>
-    Object.fromEntries(characters.map((character) => [character.id, character.queueStage])),
+    characters.reduce<Record<string, BuildQueueStage>>((queue, character) => {
+      queue[character.id] = character.queueStage;
+      return queue;
+    }, {}),
   );
 
   const charactersByStage = useMemo(
@@ -120,7 +123,20 @@ export function PlannerPage() {
   );
 
   function moveCharacter(characterId: string, stage: BuildQueueStage) {
-    setQueueById((current) => ({ ...current, [characterId]: stage }));
+    setQueueById((current) => {
+      const nextQueue = { ...current };
+
+      if (stage === "current") {
+        Object.entries(nextQueue).forEach(([id, currentStage]) => {
+          if (id !== characterId && currentStage === "current") {
+            nextQueue[id] = "next";
+          }
+        });
+      }
+
+      nextQueue[characterId] = stage;
+      return nextQueue;
+    });
   }
 
   const currentCharacter = charactersByStage.current[0];
