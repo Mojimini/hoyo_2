@@ -70,7 +70,7 @@ export function TeamsPage() {
               <div className="team-members" aria-label={`${team.name} members`}>
                 {members.map((character) => {
                   const isWeakPoint = character.id === team.weakPointCharacterId;
-                  const stateClass = isWeakPoint
+                  const stateClass = isWeakPoint || character.status === "needs-work"
                     ? "weak"
                     : character.status === "recommended" || character.status === "complete"
                       ? "strong"
