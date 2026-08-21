@@ -195,23 +195,23 @@
   border-bottom: 0;
 }
 
-.status-dot {
+.account-status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--muted);
 }
 
-.status-dot-needs-work {
+.account-status-dot-needs-work {
   background: var(--danger);
 }
 
-.status-dot-good {
+.account-status-dot-good {
   background: var(--warning);
 }
 
-.status-dot-recommended,
-.status-dot-complete {
+.account-status-dot-recommended,
+.account-status-dot-complete {
   background: var(--success);
 }
 
