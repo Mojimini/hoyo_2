@@ -22,6 +22,17 @@ interface ActiveRequest {
   controller: AbortController;
 }
 
+type RequestPlan =
+  | {
+      mode: "load";
+      uid: string;
+    }
+  | {
+      mode: "refresh";
+      uid: string;
+      snapshot: PublicProfileSnapshot;
+    };
+
 const unexpectedLoaderError: ProfileFetchError = {
   code: "unknown",
   message: "The public profile loader failed unexpectedly.",
@@ -43,63 +54,55 @@ export function createProfileRuntimeController(loader: PublicProfileLoader): Pro
     listeners.forEach((listener) => listener(state));
   };
 
-  const startRequest = async (
-    uid: string,
-    mode: "load" | "refresh",
-    snapshot?: PublicProfileSnapshot,
-  ): Promise<void> => {
+  const startRequest = async (plan: RequestPlan): Promise<void> => {
     activeRequest?.controller.abort();
 
     const requestId = ++nextRequestId;
     const controller = new AbortController();
-    const request: ActiveRequest = { uid, requestId, controller };
+    const request: ActiveRequest = { uid: plan.uid, requestId, controller };
     activeRequest = request;
 
-    if (mode === "refresh") {
-      if (!snapshot) {
-        return;
-      }
-
+    if (plan.mode === "refresh") {
       dispatch({
         type: "refresh-started",
-        uid,
+        uid: plan.uid,
         requestId,
-        snapshot,
+        snapshot: plan.snapshot,
       });
     } else {
-      dispatch({ type: "load-started", uid, requestId });
+      dispatch({ type: "load-started", uid: plan.uid, requestId });
     }
 
     try {
-      const result = await loader.fetchProfile(uid, controller.signal);
+      const result = await loader.fetchProfile(plan.uid, controller.signal);
 
       if (controller.signal.aborted) {
-        dispatch({ type: "request-cancelled", uid, requestId });
+        dispatch({ type: "request-cancelled", uid: plan.uid, requestId });
         return;
       }
 
       if (result.ok) {
         dispatch({
           type: "request-succeeded",
-          uid,
+          uid: plan.uid,
           requestId,
           snapshot: result.snapshot,
         });
       } else {
         dispatch({
           type: "request-failed",
-          uid,
+          uid: plan.uid,
           requestId,
           error: result.error,
         });
       }
     } catch {
       if (controller.signal.aborted) {
-        dispatch({ type: "request-cancelled", uid, requestId });
+        dispatch({ type: "request-cancelled", uid: plan.uid, requestId });
       } else {
         dispatch({
           type: "request-failed",
-          uid,
+          uid: plan.uid,
           requestId,
           error: unexpectedLoaderError,
         });
@@ -124,7 +127,7 @@ export function createProfileRuntimeController(loader: PublicProfileLoader): Pro
     },
 
     load(uid) {
-      return startRequest(uid, "load");
+      return startRequest({ mode: "load", uid });
     },
 
     refresh() {
@@ -135,7 +138,11 @@ export function createProfileRuntimeController(loader: PublicProfileLoader): Pro
         return Promise.resolve(false);
       }
 
-      return startRequest(requestedUid, "refresh", lastSuccessful.snapshot).then(() => true);
+      return startRequest({
+        mode: "refresh",
+        uid: requestedUid,
+        snapshot: lastSuccessful.snapshot,
+      }).then(() => true);
     },
 
     cancel() {
