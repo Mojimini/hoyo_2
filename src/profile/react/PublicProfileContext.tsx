@@ -27,7 +27,9 @@ export interface PublicProfileSessionValue {
 
 const PublicProfileContext = createContext<PublicProfileSessionValue | null>(null);
 
-function visibleSnapshot(state: ProfileRuntimeState): PublicProfileSnapshot | null {
+export function selectVisiblePublicProfileSnapshot(
+  state: ProfileRuntimeState,
+): PublicProfileSnapshot | null {
   if (state.status === "success" || state.status === "refreshing") {
     return state.snapshot;
   }
@@ -41,6 +43,15 @@ function visibleSnapshot(state: ProfileRuntimeState): PublicProfileSnapshot | nu
   }
 
   return null;
+}
+
+export function isPublicProfileSnapshotStale(state: ProfileRuntimeState): boolean {
+  return (
+    state.status === "refreshing" ||
+    (state.status === "error" &&
+      state.lastSuccessful !== null &&
+      state.lastSuccessful.requestedUid === state.requestedUid)
+  );
 }
 
 export function PublicProfileProvider({ children }: PropsWithChildren) {
@@ -63,12 +74,8 @@ export function PublicProfileProvider({ children }: PropsWithChildren) {
     return controller.refresh();
   }, [client, controller]);
 
-  const snapshot = useMemo(() => visibleSnapshot(state), [state]);
-  const isStale =
-    state.status === "refreshing" ||
-    (state.status === "error" &&
-      state.lastSuccessful !== null &&
-      state.lastSuccessful.requestedUid === state.requestedUid);
+  const snapshot = useMemo(() => selectVisiblePublicProfileSnapshot(state), [state]);
+  const isStale = isPublicProfileSnapshotStale(state);
 
   const value = useMemo<PublicProfileSessionValue>(
     () => ({
