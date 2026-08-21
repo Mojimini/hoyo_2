@@ -22,6 +22,15 @@ const DEFAULT_LANGUAGE = "en";
 const DEFAULT_TIMEOUT_MS = 8_000;
 const HSR_UID_PATTERN = /^\d{9}$/;
 
+const RELIC_SLOT_BY_TYPE: Readonly<Record<number, string>> = {
+  1: "head",
+  2: "hands",
+  3: "body",
+  4: "feet",
+  5: "planar-sphere",
+  6: "link-rope",
+};
+
 type JsonRecord = Record<string, unknown>;
 type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
@@ -239,7 +248,9 @@ function normalizeCharacter(
     return failure("malformed-response", "Character showcase entry is missing required identity fields.");
   }
 
-  const stats = normalizeStats(raw.properties);
+  // MiHoMo V2 exposes final, display-ready character stats in `statistics`.
+  // `properties` contains additive property contributions and is not a substitute.
+  const stats = normalizeStats(raw.statistics);
   const lightCone = normalizeLightCone(raw, assetBaseUrl);
   const relics = normalizeRelics(raw, assetBaseUrl);
   const traces = normalizeTraces(raw);
@@ -293,7 +304,7 @@ function normalizeStats(value: unknown): { field: ProfileField<readonly PublicPr
     stats.push({
       key,
       label,
-      value: numericValue,
+      value: normalizeProviderStatValue(raw, numericValue),
       ...(raw.percent === true ? { unit: "%" } : {}),
     });
   }
@@ -359,7 +370,7 @@ function normalizeRelics(
 
     const mainStat = normalizeRelicStat(raw.main_affix);
     const substats = normalizeRelicSubstats(raw.sub_affix ?? raw.sub_affixes);
-    const slot = readString(raw, "slot") ?? readString(raw, "position") ?? "unknown";
+    const slot = normalizeRelicSlot(raw);
     partial ||= mainStat.partial || substats.partial || slot === "unknown";
 
     const relic: PublicProfileRelic = {
@@ -441,9 +452,26 @@ function toRelicStat(value: unknown): PublicProfileRelicStat | undefined {
   return {
     key,
     label,
-    value: numericValue,
+    value: normalizeProviderStatValue(raw, numericValue),
     ...(raw.percent === true ? { unit: "%" } : {}),
   };
+}
+
+function normalizeRelicSlot(raw: JsonRecord): string {
+  const providerType = readFiniteNumber(raw, "type");
+  if (providerType !== undefined && Number.isInteger(providerType)) {
+    return RELIC_SLOT_BY_TYPE[providerType] ?? "unknown";
+  }
+
+  // Keep compatibility with explicit textual slots if the provider exposes them
+  // in a future shape, but never invent a slot when no verified value exists.
+  return readString(raw, "slot") ?? readString(raw, "position") ?? "unknown";
+}
+
+function normalizeProviderStatValue(raw: JsonRecord, value: number): number {
+  // MiHoMo V2 represents percent-valued stats as fractional numbers while
+  // marking them with `percent: true` (for example 0.68312 => 68.312%).
+  return raw.percent === true ? value * 100 : value;
 }
 
 function normalizeTraces(character: JsonRecord): {
