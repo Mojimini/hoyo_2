@@ -3,8 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   STAR_RAIL_RES_DEFAULT_REVISION,
   StarRailResAdapter,
-  StarRailResSchemaError,
-  StarRailResTransportError,
   createStarRailResFetchTransport,
   type StarRailResDataset,
   type StarRailResTransport,
@@ -163,7 +161,7 @@ describe("StarRailResAdapter", () => {
 
     const adapter = new StarRailResAdapter({ transport: createFixtureTransport(payloads) });
 
-    await expect(adapter.loadMetadata()).rejects.toMatchObject<Partial<StarRailResSchemaError>>({
+    await expect(adapter.loadMetadata()).rejects.toMatchObject({
       name: "StarRailResSchemaError",
       path: "relic_main_affixes.21.affixes.1.base",
     });
@@ -217,9 +215,7 @@ describe("createStarRailResFetchTransport", () => {
     const fakeFetch: typeof fetch = async () => new Response("missing", { status: 404 });
     const transport = createStarRailResFetchTransport({ fetchImpl: fakeFetch });
 
-    await expect(transport.getJson("characters", "en")).rejects.toMatchObject<
-      Partial<StarRailResTransportError>
-    >({
+    await expect(transport.getJson("characters", "en")).rejects.toMatchObject({
       name: "StarRailResTransportError",
       status: 404,
     });
