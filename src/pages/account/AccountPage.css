@@ -1,0 +1,362 @@
+.account-page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.account-header {
+  margin-bottom: 0;
+}
+
+.account-identity-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.account-identity-badge > span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.account-identity-badge strong,
+.account-identity-badge small {
+  display: block;
+}
+
+.account-identity-badge small {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.account-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.account-stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.account-stat-card::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  content: "";
+  background: var(--accent);
+}
+
+.account-stat-card span,
+.account-stat-card strong,
+.account-stat-card small {
+  display: block;
+}
+
+.account-stat-card span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.account-stat-card strong {
+  margin-top: 6px;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.account-stat-card small {
+  margin-top: 2px;
+  color: var(--muted);
+}
+
+.account-stat-ready::after {
+  background: var(--success);
+}
+
+.account-stat-building::after {
+  background: var(--warning);
+}
+
+.account-stat-needs-work::after {
+  background: var(--danger);
+}
+
+.account-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: var(--space-4);
+}
+
+.account-section-card,
+.account-priority-card {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.account-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.account-section-heading h2 {
+  margin: 4px 0 0;
+}
+
+.account-section-heading p {
+  margin: 0;
+}
+
+.account-section-kicker {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.account-weakness-chip {
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--warning) 55%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warning) 8%, var(--surface-2));
+  color: var(--warning);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.coverage-list {
+  display: grid;
+  gap: 16px;
+}
+
+.coverage-row {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.coverage-copy strong,
+.coverage-copy span {
+  display: block;
+}
+
+.coverage-copy span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.coverage-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.coverage-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+}
+
+.status-distribution {
+  display: grid;
+  gap: 10px;
+}
+
+.status-distribution-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-distribution-row:last-child {
+  border-bottom: 0;
+}
+
+.account-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.account-status-dot-needs-work {
+  background: var(--danger);
+}
+
+.account-status-dot-good {
+  background: var(--warning);
+}
+
+.account-status-dot-recommended,
+.account-status-dot-complete {
+  background: var(--success);
+}
+
+.account-total-label {
+  font-size: 0.8rem;
+}
+
+.priority-list {
+  display: grid;
+  gap: 10px;
+}
+
+.priority-row {
+  display: grid;
+  grid-template-columns: auto minmax(150px, 0.8fr) auto minmax(220px, 1.4fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.priority-row:hover,
+.priority-row:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  outline: none;
+}
+
+.priority-rank {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.priority-character strong,
+.priority-character span,
+.priority-score strong,
+.priority-score span {
+  display: block;
+}
+
+.priority-character span,
+.priority-score span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.priority-score {
+  min-width: 66px;
+  text-align: right;
+}
+
+.priority-score strong {
+  color: var(--accent);
+  font-size: 1.15rem;
+}
+
+.priority-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.priority-arrow {
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.account-guidance {
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--border));
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, var(--surface)), transparent 55%),
+    var(--surface);
+}
+
+.account-guidance h2 {
+  margin: 6px 0 8px;
+}
+
+.account-guidance p,
+.account-empty-copy {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .account-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .priority-row {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .priority-row p {
+    grid-column: 2 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .account-header,
+  .account-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-identity-badge,
+  .account-weakness-chip {
+    width: 100%;
+  }
+
+  .account-weakness-chip {
+    white-space: normal;
+  }
+
+  .account-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .coverage-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .priority-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .priority-score {
+    text-align: right;
+  }
+
+  .priority-row p {
+    grid-column: 2 / -1;
+  }
+
+  .priority-arrow {
+    display: none;
+  }
+}
